@@ -46,4 +46,22 @@ model Rec {
 
   featureId String
   feature   Feature @relation(fields: [featureId], references: [id])
+
+  categories RecCategory[]
+}
+
+model RecCategory {
+  id         String    @id @default(cuid())
+  rec        Rec?      @relation(fields: [recId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  recId      String?
+
+  isSuggestion Boolean?
+}
+
+model Category {
+  id   String        @id @default(cuid())
+  name String
+  recs RecCategory[]
 }

@@ -112,7 +112,7 @@ export async function parseRecs(
               node = stack.pop();
               if (node.tagName === 'A') {
                 currRec.url = node.getAttribute('href');
-                currRec.title = node.innerText?.trim();
+                // currRec.title = node.innerText?.trim();
 
                 break;
               } else if (node.children?.length) {

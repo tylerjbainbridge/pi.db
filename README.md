@@ -1,3 +1,5 @@
+# Helpful scripts
+
 ## To set up
 
 ```bash
@@ -27,4 +29,24 @@ npx prisma studio
 
 ```bash
 npm run dev
+```
+
+# More
+
+## Next routes
+
+```
+/pages
+```
+
+## Scraper code
+
+```
+/scraper
+```
+
+## Prisma (DB) schema
+
+```
+/prisma
 ```
