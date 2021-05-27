@@ -24,11 +24,12 @@ interface Props {
   rec: Rec;
 }
 
-export default function ({ rec }: Props) {
+export default function RecPage({ rec }: Props) {
+  console.log(rec.contentHTML);
   return (
     <>
       <h1>{rec.title}</h1>
-      <p>{rec.content}</p>
+      <div dangerouslySetInnerHTML={{ __html: rec.contentHTML || '' }} />
     </>
   );
 }
