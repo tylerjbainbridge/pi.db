@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "scrape": "npx npx ts-node main.ts",
+    "fill-db": "npx npx ts-node ./scraper/fill-db.ts",
     "reset-db": "npx prisma migrate reset",
     "init-db": "npx prisma migrate && npx prisma generate"
   },

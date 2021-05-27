@@ -14,7 +14,7 @@ npm run start
 ## To reset db
 
 ```bash
-npm run reset && npm run start
+npm run reset-db && npm run start
 ```
 
 ## To view data in sql view

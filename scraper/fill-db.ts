@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 
 import { deleteAll, persistFeature } from './persist';
-import type { ParsedFeature } from './types';
+import type { ParsedFeature } from '../types';
 import { getRecLinksFromArchive, parseRecs } from './scrape';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

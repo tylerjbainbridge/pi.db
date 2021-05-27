@@ -16,7 +16,7 @@ interface Props {
   recs: Rec[];
 }
 
-export default function Home({ recs }: Props) {
+export default function Recs({ recs }: Props) {
   return (
     <ol>
       {recs.map((rec) => (

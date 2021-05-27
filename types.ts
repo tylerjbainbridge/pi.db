@@ -4,7 +4,7 @@ export interface ParsedRec {
   contentHTML?: string;
   emoji: string;
   url: string;
-  date?: Date | null
+  date?: string | null
 }
 
 export interface ParsedGuest {
@@ -18,5 +18,5 @@ export interface ParsedFeature {
   intro: string;
   introHTML?: string;
   guests: ParsedGuest[];
-  date?: Date | null
+  date?: string | null
 }

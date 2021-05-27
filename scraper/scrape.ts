@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 import scrollPageToBottom from 'puppeteer-autoscroll-down';
 
-import type { ParsedRec, ParsedGuest, ParsedFeature } from './types';
+import type { ParsedRec, ParsedGuest, ParsedFeature } from '../types';
 
 const ARCHIVE_URL = 'https://www.perfectlyimperfect.fyi/archive?sort=new';
 
@@ -48,7 +48,7 @@ export async function parseRecs(
 
     parsedFeature.date = new Date(
       (document.querySelectorAll('.post-date')[0] as HTMLElement).innerText
-    );
+    )?.toISOString();
 
     const introNode = Array.from(document.querySelectorAll('p')).filter(
       (n) => n.parentElement === bodyMarkup

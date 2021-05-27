@@ -1,6 +1,6 @@
 import { Feature, Guest, PrismaClient } from '@prisma/client';
 
-import type { ParsedRec, ParsedGuest, ParsedFeature } from './types';
+import type { ParsedRec, ParsedGuest, ParsedFeature } from '../types';
 
 const prisma = new PrismaClient();
 
