@@ -5,16 +5,18 @@ import { Rec } from '@prisma/client';
 
 import prisma from '../lib/prisma';
 
+interface Props {
+  recs: Rec[];
+}
+
 // index.tsx
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async (): Promise<{
+  props: Props;
+}> => {
   const recs = await prisma.rec.findMany({});
 
   return { props: { recs } };
 };
-
-interface Props {
-  recs: Rec[];
-}
 
 export default function Recs({ recs }: Props) {
   return (

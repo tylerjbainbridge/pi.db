@@ -5,7 +5,13 @@ import { Rec } from '@prisma/client';
 
 import prisma from '../../lib/prisma';
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+interface Props {
+  rec: Rec | null;
+}
+
+export const getServerSideProps: GetServerSideProps = async ({
+  params,
+}): Promise<{ props: Props }> => {
   const rec =
     params?.id != null
       ? await prisma.rec.findUnique({
@@ -20,16 +26,11 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   };
 };
 
-interface Props {
-  rec: Rec;
-}
-
 export default function RecPage({ rec }: Props) {
-  console.log(rec.contentHTML);
   return (
     <>
-      <h1>{rec.title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: rec.contentHTML || '' }} />
+      <h1>{rec?.title}</h1>
+      <div dangerouslySetInnerHTML={{ __html: rec?.contentHTML || '' }} />
     </>
   );
 }
