@@ -1,7 +1,7 @@
 ## To set up
 
 ```bash
-npm install & npm run init
+npm install && npm run init
 
 ```
 
@@ -17,8 +17,14 @@ npm run start
 npm run reset && npm run start
 ```
 
-## To view data
+## To view data in sql view
 
 ```bash
 npx prisma studio
+```
+
+## Run next.js web server
+
+```bash
+npm run dev
 ```

@@ -7,9 +7,27 @@
     // Remove if you want ts-node to do typechecking.
     "transpileOnly": true,
     "files": true,
+    "jsx": "preserve"
   },
   "compilerOptions": {
     "module": "CommonJS",
-    "lib": ["esnext", "dom"],
-  }
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "jsx": "preserve",
+    "allowJs": true,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

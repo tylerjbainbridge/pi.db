@@ -100,6 +100,7 @@ export async function parseRecs(
           case 'P': {
             const innerText = iter.innerText;
             currRec.title = innerText.trim();
+            currRec.date = parsedFeature.date;
 
             const emojis = innerText?.match(/\p{Extended_Pictographic}/ug);
             currRec.emoji = emojis?.join(' ');

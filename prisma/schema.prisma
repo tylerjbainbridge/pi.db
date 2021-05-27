@@ -39,6 +39,8 @@ model Rec {
   contentHTML String?
   emoji       String?
 
+  date DateTime?
+
   guestId String
   guest   Guest  @relation(fields: [guestId], references: [id])
 

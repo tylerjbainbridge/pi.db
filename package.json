@@ -1,16 +1,15 @@
 {
-  "name": "my-prisma-project",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "npx npx ts-node main.ts",
-    "reset": "npx prisma migrate reset",
-    "init": "npx prisma migrate && npx prisma generate"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "scrape": "npx npx ts-node main.ts",
+    "reset-db": "npx prisma migrate reset",
+    "init-db": "npx prisma migrate && npx prisma generate"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/node": "^15.6.1",
     "prisma": "^2.23.0",
@@ -21,7 +20,11 @@
   "dependencies": {
     "@prisma/client": "^2.23.0",
     "@types/puppeteer": "^5.4.3",
+    "@types/react": "^17.0.8",
+    "next": "10.2.3",
     "puppeteer": "^9.1.1",
-    "puppeteer-autoscroll-down": "^0.1.6"
+    "puppeteer-autoscroll-down": "^0.1.6",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   }
 }
