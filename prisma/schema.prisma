@@ -19,22 +19,25 @@ model Guest {
 }
 
 model Feature {
-  id    String    @id @default(cuid())
-  title String
-  url   String    @unique
-  intro String?
-  date  DateTime?
+  id        String  @id @default(cuid())
+  title     String
+  url       String  @unique
+  intro     String?
+  introHTML String?
+
+  date DateTime?
 
   guests Guest[]
   recs   Rec[]
 }
 
 model Rec {
-  id      String  @id @default(cuid())
-  title   String
-  url     String
-  content String
-  emoji   String?
+  id          String  @id @default(cuid())
+  title       String
+  url         String
+  content     String
+  contentHTML String?
+  emoji       String?
 
   guestId String
   guest   Guest  @relation(fields: [guestId], references: [id])

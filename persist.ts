@@ -74,6 +74,7 @@ export const persistFeature = async ({
   title,
   url,
   intro,
+  introHTML,
   guests: parsedGuests,
 }: ParsedFeature) => {
   let [feature] = await prisma.feature.findMany({ where: { url } });
@@ -84,6 +85,7 @@ export const persistFeature = async ({
         url,
         title,
         intro,
+        introHTML,
       },
     });
   }

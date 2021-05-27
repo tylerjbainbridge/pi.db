@@ -1,15 +1,20 @@
 ## To set up
 
 ```bash
-npm install
-npx prisma migrate
-npx prisma generate
+npm install & npm run init
+
+```
+
+## To fill the db
+
+```bash
+npm run start
 ```
 
 ## To reset db
 
 ```bash
-npx prisma migrate reset && npx ts-node scrape.ts
+npm run reset && npm run start
 ```
 
 ## To view data
