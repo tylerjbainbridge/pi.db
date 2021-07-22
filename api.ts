@@ -38,8 +38,8 @@ client.on('message', (msg) => {
       .setTimestamp(new Date(rec?.feature.date))
       .addFields({ name: "Rec'd by", value: rec?.guest?.name, inline: true })
       .addFields({
-        name: 'Feature URL',
-        value: rec?.feature?.url,
+        name: 'Feature',
+        value: rec?.feature?.title,
         inline: true,
       })
       .setURL(rec?.feature?.url);
