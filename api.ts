@@ -39,7 +39,7 @@ client.on('message', (msg) => {
       .addFields({ name: "Rec'd by", value: rec?.guest?.name, inline: true })
       .addFields({
         name: 'Feature',
-        value: rec?.feature?.title,
+        value: rec?.feature?.url,
         inline: true,
       })
       .setURL(rec?.feature?.url);
