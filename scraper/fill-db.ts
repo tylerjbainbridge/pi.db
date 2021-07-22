@@ -1,7 +1,5 @@
-import puppeteer from 'puppeteer';
-import fs from 'fs';
-
-import { deleteAll, persistFeature, saveToJson } from './persist';
+import * as puppeteer from 'puppeteer';
+import { persistFeature, saveToJson } from './persist';
 import type { ParsedFeature } from '../types';
 import { getRecLinksFromArchive, parseRecs } from './scrape';
 import prisma from '../lib/prisma';
@@ -113,5 +111,6 @@ const test = async () => {
   console.log(JSON.stringify(parsed, null, 2));
 };
 
+saveToJson();
 // test();
-run();
+// run();

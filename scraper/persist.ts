@@ -117,4 +117,6 @@ export const saveToJson = async () => {
   );
 
   fs.writeFileSync(path.join('__dirname', '../recs.json'), recJSONStr);
+
+  console.log('Done saving to JSON...');
 };

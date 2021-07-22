@@ -1,9 +1,11 @@
-import { PrismaClient, Rec } from '@prisma/client';
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 import _ from 'lodash';
 require('dotenv').config();
-
+import express from 'express';
+const app = express()
+const port = 3000;
 import { recs } from './recs.json';
+
 
 const client = new Discord.Client();
 
@@ -58,3 +60,15 @@ client.on('error', (e) => {
 });
 
 client.login(process.env.BOT_TOKEN);
+
+app.get('/health-check', (_req, res) => {
+  res.sendStatus(200);
+})
+
+app.get('/recs', (_req, res) => {
+  res.json({ recs });
+})
+
+app.listen(port, () => {
+  console.log(`API listening at http://localhost:${port}`)
+})
