@@ -7,12 +7,19 @@ import { recs } from './recs.json';
 
 const client = new Discord.Client();
 
-
 client.on('ready', async () => {
-  console.log('ready!')
+  console.log('ready!');
 });
 
 client.on('message', (msg) => {
+  //console.log(msg.author.id);
+
+  if (
+    msg.author.id === process.env.TYLER_USER_ID &&
+    msg.content === 'pi sync'
+  ) {
+  }
+
   if (msg.content === 'pi rec') {
     console.log('responding with rec!');
 
@@ -27,8 +34,12 @@ client.on('message', (msg) => {
        * Takes a Date object, defaults to current date.
        */
       .setTimestamp(new Date(rec?.feature.date))
-      .addFields({ name: "Rec'd by", value: rec?.guest?.name, inline: true})
-      .addFields({ name: "Feature URL", value: rec?.feature?.url, inline: true})
+      .addFields({ name: "Rec'd by", value: rec?.guest?.name, inline: true })
+      .addFields({
+        name: 'Feature URL',
+        value: rec?.feature?.url,
+        inline: true,
+      })
       .setURL(rec?.feature?.url);
 
     if (rec?.url != null) {

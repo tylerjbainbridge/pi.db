@@ -8,8 +8,6 @@
     "transpileOnly": true,
     "files": true,
     "jsx": "preserve"
-    "resolveJsonModule": true,
-
   },
   "compilerOptions": {
     "module": "CommonJS",
