@@ -4,21 +4,22 @@ import fs from 'fs';
 import { deleteAll, persistFeature, saveToJson } from './persist';
 import type { ParsedFeature } from '../types';
 import { getRecLinksFromArchive, parseRecs } from './scrape';
+import prisma from '../lib/prisma';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function run() {
+  const startTime = new Date();
+
   const browser = await puppeteer.launch();
-
-  console.log('clearing DB');
-
-  await deleteAll();
 
   console.log('Searching for posts...');
 
   const urls = await getRecLinksFromArchive(browser);
 
   console.log(`Found ${urls.length} posts.`);
+
+  await sleep(2000);
 
   const retried = new Set();
   const failedUrls: string[] = [];
@@ -61,6 +62,15 @@ async function run() {
         continue;
       }
 
+      const existingFeature = await prisma.feature.findUnique({
+        where: { url: parsedFeature.url },
+      });
+
+      if (existingFeature != null) {
+        console.log('Up to date...returning early.');
+        break;
+      }
+
       console.log(`Saving feature: "${parsedFeature.title}"`);
       const feature = await persistFeature(parsedFeature);
       console.log(`Saved feature: "${feature.id}"`);
@@ -70,7 +80,7 @@ async function run() {
       await retry(url);
     }
 
-    await sleep(1000);
+    await sleep(5000);
   }
 
   console.log({ failedUrls, skippedUrls });
@@ -78,6 +88,12 @@ async function run() {
   saveToJson();
 
   await browser.close();
+
+  const endTime = new Date();
+
+  const seconds = Math.round((Number(endTime) - Number(startTime)) / 1000);
+
+  console.log(`Completed in ${seconds} seconds.`);
 
   process.exit();
 }
@@ -89,11 +105,13 @@ const test = async () => {
 
   const parsed = await parseRecs(
     browser,
-    'https://www.perfectlyimperfect.fyi/p/78-blackbird-spyplane'
+    // With semi colons.
+    'https://www.perfectlyimperfect.fyi/p/5-bart-hutchins-on-chore-coat-season',
+    // 'https://www.perfectlyimperfect.fyi/p/94-betsey-brown',
   );
 
   console.log(JSON.stringify(parsed, null, 2));
 };
 
-test();
-// run();
+// test();
+run();

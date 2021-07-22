@@ -31,7 +31,6 @@ export async function parseRecs(
   });
 
   const f = await page.evaluate(() => {
-   try {
     const parsedFeature: ParsedFeature = {
       title: '',
       url: '',
@@ -43,13 +42,17 @@ export async function parseRecs(
       document.querySelectorAll('h1.post-title')[0] as HTMLElement
     )?.innerText;
 
-    console.log(parsedFeature);
-
     let [bodyMarkup] = Array.from(document.querySelectorAll('.body'));
 
-    parsedFeature.date = new Date(
-      (document.querySelectorAll('.post-date')[0] as HTMLElement)?.innerText
-    )?.toISOString();
+    const dateStr = (document.querySelectorAll('.post-date')[0] as HTMLElement)
+      ?.innerText;
+
+    try {
+      parsedFeature.date =
+        dateStr != null ? new Date(dateStr)?.toISOString() : null;
+    } catch (e) {
+      parsedFeature.date = null;
+    }
 
     const introNode = Array.from(document.querySelectorAll('p')).filter(
       (n) => n.parentElement === bodyMarkup
@@ -91,7 +94,7 @@ export async function parseRecs(
       guest.name = nameContainer?.innerText?.split('(')[0].trim();
 
       let iter = nameContainer.nextElementSibling;
-      let currRec: ParsedRec = {...EMPTY_REC};
+      let currRec: ParsedRec = { ...EMPTY_REC };
 
       // Continue walking the nodes under the banner until we encounter
       // Something that isn't a <p> or <blockquote> (not relevant)
@@ -100,10 +103,10 @@ export async function parseRecs(
           // This is the title of the rec.
           case 'P': {
             const innerText = iter.innerText;
-            currRec.title = innerText.trim();
+            currRec.title = innerText.split(':').pop().trim();
             currRec.date = parsedFeature.date;
 
-            const emojis = innerText?.match(/\p{Extended_Pictographic}/ug);
+            const emojis = innerText?.match(/\p{Extended_Pictographic}/gu);
             currRec.emoji = emojis?.join(' ');
 
             let stack = [iter];
@@ -121,10 +124,12 @@ export async function parseRecs(
               }
             }
 
-            currRec.title = (emojis || []).reduce(
-              (t: string, emoji: string) => t.replace(emoji, ''),
-              currRec.title
-            )?.trim();
+            currRec.title = (emojis || [])
+              .reduce(
+                (t: string, emoji: string) => t.replace(emoji, ''),
+                currRec.title
+              )
+              ?.trim();
 
             break;
           }
@@ -136,7 +141,7 @@ export async function parseRecs(
             guest.recs.push(currRec);
 
             // Clear current rec.
-            currRec = {...EMPTY_REC};
+            currRec = { ...EMPTY_REC };
             break;
           }
         }
@@ -150,15 +155,7 @@ export async function parseRecs(
     }
 
     return parsedFeature;
-   } catch (e) {
-     return e;
-   }
   });
-
-  if (f instanceof Error) {
-    console.log('whoops!');
-    throw f;
-  }
 
   await page.close();
 

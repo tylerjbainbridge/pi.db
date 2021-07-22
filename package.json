@@ -6,13 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "fill-db": "npx npx ts-node ./scraper/fill-db.ts",
-    "reset-db": "npx prisma migrate reset",
-    "init-db": "npx prisma migrate && npx prisma generate",
-    
-    "prod-build-api": "npx tsc --resolveJsonModule --esModuleInterop --outDir dist/ api.ts",
+    "fill-db": "yarn ts-node ./scraper/fill-db.ts",
+    "reset-db": "yarn prisma migrate reset",
+    "init-db": "yarn prisma migrate && npx prisma generate",
+    "prod-build-api": "yarn tsc --resolveJsonModule --esModuleInterop --outDir dist/ api.ts",
     "prod-start-api": "node dist/api.js",
-    "dev-start-api": "npx ts-node api.ts"
+    "dev-start-api": "yarn ts-node api.ts"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.171",
@@ -20,7 +19,7 @@
     "prisma": "^2.23.0",
     "ts-node": "^10.0.0",
     "tslib": "^2.2.0",
-    "typescript": "^4.2.4"
+    "typescript": "^4.3.5"
   },
   "dependencies": {
     "@prisma/client": "^2.23.0",
