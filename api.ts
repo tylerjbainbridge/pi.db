@@ -18,11 +18,11 @@ client.on('message', (msg) => {
 
   if (
     msg.author.id === process.env.TYLER_USER_ID &&
-    msg.content?.toLowerCase() === 'pi sync'
+    msg.content?.toLowerCase()?.trim() === 'pi sync'
   ) {
   }
 
-  if (msg.content?.toLowerCase() === 'pi rec') {
+  if (msg.content?.toLowerCase()?.trim() === 'pi rec') {
     console.log('responding with rec!');
 
     const rec = _.sample(recs);
