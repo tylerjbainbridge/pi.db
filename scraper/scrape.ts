@@ -31,6 +31,7 @@ export async function parseRecs(
   });
 
   const f = await page.evaluate(() => {
+   try {
     const parsedFeature: ParsedFeature = {
       title: '',
       url: '',
@@ -47,7 +48,7 @@ export async function parseRecs(
     let [bodyMarkup] = Array.from(document.querySelectorAll('.body'));
 
     parsedFeature.date = new Date(
-      (document.querySelectorAll('.post-date')[0] as HTMLElement).innerText
+      (document.querySelectorAll('.post-date')[0] as HTMLElement)?.innerText
     )?.toISOString();
 
     const introNode = Array.from(document.querySelectorAll('p')).filter(
@@ -149,7 +150,15 @@ export async function parseRecs(
     }
 
     return parsedFeature;
+   } catch (e) {
+     return e;
+   }
   });
+
+  if (f instanceof Error) {
+    console.log('whoops!');
+    throw f;
+  }
 
   await page.close();
 

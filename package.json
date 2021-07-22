@@ -8,9 +8,14 @@
     "start": "next start",
     "fill-db": "npx npx ts-node ./scraper/fill-db.ts",
     "reset-db": "npx prisma migrate reset",
-    "init-db": "npx prisma migrate && npx prisma generate"
+    "init-db": "npx prisma migrate && npx prisma generate",
+    
+    "prod-build-api": "npx tsc --resolveJsonModule --esModuleInterop --outDir dist/ api.ts",
+    "prod-start-api": "node dist/api.js",
+    "dev-start-api": "npx ts-node api.ts"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.171",
     "@types/node": "^15.6.1",
     "prisma": "^2.23.0",
     "ts-node": "^10.0.0",
@@ -21,6 +26,9 @@
     "@prisma/client": "^2.23.0",
     "@types/puppeteer": "^5.4.3",
     "@types/react": "^17.0.8",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "lodash": "^4.17.21",
     "next": "10.2.3",
     "puppeteer": "^9.1.1",
     "puppeteer-autoscroll-down": "^0.1.6",

@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
+import fs from 'fs';
 
-import { deleteAll, persistFeature } from './persist';
+import { deleteAll, persistFeature, saveToJson } from './persist';
 import type { ParsedFeature } from '../types';
 import { getRecLinksFromArchive, parseRecs } from './scrape';
 
@@ -74,6 +75,8 @@ async function run() {
 
   console.log({ failedUrls, skippedUrls });
 
+  saveToJson();
+
   await browser.close();
 
   process.exit();
@@ -82,15 +85,15 @@ async function run() {
 const test = async () => {
   const browser = await puppeteer.launch();
 
-  console.log('test');
+  console.log('testing...');
 
   const parsed = await parseRecs(
     browser,
-    'https://www.perfectlyimperfect.fyi/p/77-kathleen-sorbara-chickees-vintage'
+    'https://www.perfectlyimperfect.fyi/p/78-blackbird-spyplane'
   );
 
   console.log(JSON.stringify(parsed, null, 2));
 };
 
-// test();
-run();
+test();
+// run();

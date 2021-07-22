@@ -1,5 +1,6 @@
 import { Feature, Guest, PrismaClient } from '@prisma/client';
-
+import fs from 'fs';
+import path from 'path';
 import type { ParsedRec, ParsedGuest, ParsedFeature } from '../types';
 
 const prisma = new PrismaClient();
@@ -97,4 +98,23 @@ export const persistFeature = async ({
   }
 
   return feature;
+};
+
+export const saveToJson = async () => {
+  console.log('Saving to JSON...');
+
+  const recJSONStr = JSON.stringify(
+    {
+      recs: await prisma.rec.findMany({
+        include: {
+          guest: true,
+          feature: true,
+        },
+      }),
+    },
+    null,
+    4
+  );
+
+  fs.writeFileSync(path.join('__dirname', '../recs.json'), recJSONStr);
 };
