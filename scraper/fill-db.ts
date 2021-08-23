@@ -1,4 +1,4 @@
-import {launch} from 'puppeteer';
+import { launch } from 'puppeteer';
 import { persistFeature, saveToJson } from './persist';
 import type { ParsedFeature } from '../types';
 import { getRecLinksFromArchive, parseRecs } from './scrape';
@@ -105,19 +105,19 @@ const test = async () => {
   const parsed = await parseRecs(
     browser,
     // With semi colons.
-    'https://www.perfectlyimperfect.fyi/p/101-dylan-gelula',
+    'https://www.perfectlyimperfect.fyi/p/101-dylan-gelula'
     // 'https://www.perfectlyimperfect.fyi/p/94-betsey-brown',
   );
 
   console.log(JSON.stringify(parsed, null, 2));
 };
 
-const dbTest =  async () => {
+const dbTest = async () => {
   const feature = await prisma.feature.findMany();
 
-  console.log()
+  console.log();
 };
 
-// saveToJson();
+saveToJson();
 // test();
-run();
+// run();
