@@ -45,7 +45,7 @@ export async function parseRecs(
     let [bodyMarkup] = Array.from(document.querySelectorAll('.body'));
 
     const dateStr = (document.querySelectorAll('.post-date')[0] as HTMLElement)
-      ?.innerText;
+      ?.getAttribute("title");
 
     try {
       parsedFeature.date =

@@ -1,15 +1,16 @@
-import * as puppeteer from 'puppeteer';
+import {launch} from 'puppeteer';
 import { persistFeature, saveToJson } from './persist';
 import type { ParsedFeature } from '../types';
 import { getRecLinksFromArchive, parseRecs } from './scrape';
 import prisma from '../lib/prisma';
+import { URL_BLACKLIST_SET } from './constants';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function run() {
   const startTime = new Date();
 
-  const browser = await puppeteer.launch();
+  const browser = await launch();
 
   console.log('Searching for posts...');
 
@@ -38,7 +39,7 @@ async function run() {
   while (urls.length > 0) {
     const url = urls.shift();
 
-    if (url == null) continue;
+    if (url == null || URL_BLACKLIST_SET.has(url)) continue;
 
     try {
       console.log(`Parsing: "${url}"`);
@@ -97,20 +98,26 @@ async function run() {
 }
 
 const test = async () => {
-  const browser = await puppeteer.launch();
+  const browser = await launch();
 
   console.log('testing...');
 
   const parsed = await parseRecs(
     browser,
     // With semi colons.
-    'https://www.perfectlyimperfect.fyi/p/5-bart-hutchins-on-chore-coat-season',
+    'https://www.perfectlyimperfect.fyi/p/101-dylan-gelula',
     // 'https://www.perfectlyimperfect.fyi/p/94-betsey-brown',
   );
 
   console.log(JSON.stringify(parsed, null, 2));
 };
 
-saveToJson();
+const dbTest =  async () => {
+  const feature = await prisma.feature.findMany();
+
+  console.log()
+};
+
+// saveToJson();
 // test();
-// run();
+run();
