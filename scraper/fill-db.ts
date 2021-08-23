@@ -84,7 +84,7 @@ async function run() {
 
   console.log({ failedUrls, skippedUrls });
 
-  saveToJson();
+  await saveToJson();
 
   await browser.close();
 
@@ -118,6 +118,6 @@ const dbTest = async () => {
   console.log();
 };
 
-saveToJson();
+// saveToJson();
 // test();
-// run();
+run();

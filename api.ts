@@ -2,10 +2,9 @@ import * as Discord from 'discord.js';
 import _ from 'lodash';
 require('dotenv').config();
 import express from 'express';
-const app = express()
+const app = express();
 const port = 3000;
 import { recs } from './recs.json';
-
 
 const client = new Discord.Client();
 
@@ -23,9 +22,9 @@ client.on('message', (msg) => {
   }
 
   if (msg.content?.toLowerCase()?.trim() === 'pi rec') {
-    console.log('responding with rec!');
-
     const rec = _.sample(recs);
+
+    console.log('responding with rec!', rec.id);
 
     const embed = new Discord.MessageEmbed()
       .setTitle([rec?.emoji, rec?.title].filter(Boolean).join(' '))
@@ -63,12 +62,12 @@ client.login(process.env.BOT_TOKEN);
 
 app.get('/health-check', (_req, res) => {
   res.sendStatus(200);
-})
+});
 
 app.get('/recs', (_req, res) => {
   res.json({ recs });
-})
+});
 
 app.listen(port, () => {
-  console.log(`API listening at http://localhost:${port}`)
-})
+  console.log(`API listening at http://localhost:${port}`);
+});
