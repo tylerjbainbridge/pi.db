@@ -31,6 +31,32 @@ export default function Recs({ recs }: Props) {
     setRec(recs[Math.floor(Math.random() * recs.length)]);
   }, []);
 
+  const displayOptions = [
+    {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    {
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+    },
+    {
+      justifyContent: 'flex-end',
+      alignItems: 'flex-end',
+    },
+    {
+      justifyContent: 'flex-start',
+      alignItems: 'flex-end',
+    },
+    {
+      justifyContent: 'flex-end',
+      alignItems: 'flex-start',
+    },
+  ];
+
+  const randomOption =
+    displayOptions[Math.floor(Math.random() * displayOptions.length)];
+
   return (
     rec != null && (
       <Box
@@ -38,12 +64,11 @@ export default function Recs({ recs }: Props) {
         width="100vw"
         height="100vh"
         display="flex"
-        justifyContent="center"
-        alignItems="center"
         bg="#0000ff"
         color="white"
         fontFamily="Times New Roman"
         suppressHydrationWarning
+        {...randomOption}
       >
         <Box p="30px" border="15px solid #FFFF00" width="700px">
           <Heading as="h2" size="xl" fontFamily="Times New Roman">
