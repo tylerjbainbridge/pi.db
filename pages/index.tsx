@@ -47,6 +47,7 @@ export default function Recs({ recs }: Props) {
       >
         <Box p="30px" border="15px solid #FFFF00" width="700px">
           <Heading as="h2" size="xl" fontFamily="Times New Roman">
+            {rec.emoji}{' '}
             {rec.url != null ? (
               <Link isExternal href={rec.url}>
                 {rec.title.trim()}
