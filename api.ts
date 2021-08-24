@@ -6,6 +6,12 @@ const app = express();
 const port = 3000;
 import { recs } from './recs.json';
 
+import next from 'next';
+
+const dev = process.env.NODE_ENV !== 'production';
+const nextApp = next({ dev });
+const handle = nextApp.getRequestHandler();
+
 const client = new Discord.Client();
 
 client.on('ready', async () => {
@@ -24,31 +30,38 @@ client.on('message', (msg) => {
   if (msg.content?.toLowerCase()?.trim() === 'pi rec') {
     const rec = _.sample(recs);
 
-    console.log('responding with rec!', rec.id);
+    console.log('responding with rec!', rec?.id);
 
-    const embed = new Discord.MessageEmbed()
-      .setTitle([rec?.emoji, rec?.title].filter(Boolean).join(' '))
-      // .setAuthor("Perfectly Imperfect", "https://cdn.substack.com/image/fetch/w_1360,c_limit,f_auto,q_auto:best,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fecbe78f0-ea9f-4221-8db1-6d10269a5c80_1000x1019.png")
+    if (rec != null) {
+      const embed = new Discord.MessageEmbed()
+        .setTitle([rec?.emoji, rec?.title].filter(Boolean).join(' '))
+        // .setAuthor("Perfectly Imperfect", "https://cdn.substack.com/image/fetch/w_1360,c_limit,f_auto,q_auto:best,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fecbe78f0-ea9f-4221-8db1-6d10269a5c80_1000x1019.png")
 
-      .setDescription(rec?.content)
+        .setDescription(rec?.content);
       /*
        * Takes a Date object, defaults to current date.
        */
-      .setTimestamp(new Date(rec?.feature.date))
-      .addFields({ name: "Rec'd by", value: rec?.guest?.name, inline: true })
-      .addFields({
-        name: 'Feature',
-        value: rec?.feature?.url,
-        inline: true,
-      })
-      .setURL(rec?.feature?.url);
 
-    if (rec?.url != null) {
-      embed.setURL(rec?.url);
-    }
+      if (rec?.feature.date != null) {
+        embed.setTimestamp(new Date(rec?.feature.date));
+      }
 
-    if (rec != null) {
-      msg.reply(embed);
+      embed
+        .addFields({ name: "Rec'd by", value: rec?.guest?.name, inline: true })
+        .addFields({
+          name: 'Feature',
+          value: rec?.feature?.url,
+          inline: true,
+        })
+        .setURL(rec?.feature?.url);
+
+      if (rec?.url != null) {
+        embed.setURL(rec?.url);
+      }
+
+      if (rec != null) {
+        msg.reply(embed);
+      }
     }
   }
 });
@@ -60,14 +73,27 @@ client.on('error', (e) => {
 
 client.login(process.env.BOT_TOKEN);
 
-app.get('/health-check', (_req, res) => {
-  res.sendStatus(200);
-});
+(async () => {
+  try {
+    await nextApp.prepare().then(() => {
+      app.get('/api/health-check', (_req, res) => {
+        res.sendStatus(200);
+      });
 
-app.get('/recs', (_req, res) => {
-  res.json({ recs });
-});
+      app.get('/api/recs', (_req, res) => {
+        res.json({ recs });
+      });
 
-app.listen(port, () => {
-  console.log(`API listening at http://localhost:${port}`);
-});
+      app.get('*', (req, res) => {
+        return handle(req, res);
+      });
+
+      app.listen(port, () => {
+        console.log(`API listening at http://localhost:${port}`);
+      });
+    });
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
+})();

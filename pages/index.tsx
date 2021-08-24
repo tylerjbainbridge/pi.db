@@ -1,29 +1,79 @@
-import Head from 'next/head';
-import Image from 'next/image';
 import { GetStaticProps } from 'next';
-import { Rec } from '@prisma/client';
+import { Rec, Guest, Feature } from '@prisma/client';
+import { Box, Heading, Text, Link } from '@chakra-ui/react';
 
 import prisma from '../lib/prisma';
+import React, { useEffect, useState } from 'react';
 
 interface Props {
-  recs: Rec[];
+  recs: (Rec & {
+    guest: Guest;
+    feature: Feature;
+  })[];
 }
 
 // index.tsx
 export const getStaticProps: GetStaticProps = async (): Promise<{
   props: Props;
 }> => {
-  const recs = await prisma.rec.findMany({});
+  const recs = await prisma.rec.findMany({
+    where: {},
+    include: { guest: true, feature: true },
+  });
 
   return { props: { recs } };
 };
 
 export default function Recs({ recs }: Props) {
+  const [rec, setRec] = useState<Rec | null>(null);
+
+  useEffect(() => {
+    setRec(recs[Math.floor(Math.random() * recs.length)]);
+  }, []);
+
   return (
-    <ol>
-      {recs.map((rec) => (
-        <li>{rec.title}</li>
-      ))}
-    </ol>
+    rec != null && (
+      <Box
+        p="45px"
+        width="100vw"
+        height="100vh"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        bg="#0000ff"
+        color="white"
+        fontFamily="Times New Roman"
+        suppressHydrationWarning
+      >
+        <Box p="30px" border="15px solid #FFFF00" width="700px">
+          <Heading as="h2" size="xl" fontFamily="Times New Roman">
+            {rec.url != null ? (
+              <Link isExternal href={rec.url}>
+                {rec.title.trim()}
+              </Link>
+            ) : (
+              rec.title.trim()
+            )}
+          </Heading>
+          <br />
+          <Heading as="h4" size="md" fontFamily="Times New Roman">
+            By {rec?.guest?.name || ''}
+          </Heading>
+          <br />
+          {rec.contentHTML != null ? (
+            <Text
+              maxWidth="600px"
+              dangerouslySetInnerHTML={{ __html: rec.contentHTML }}
+              fontWeight="bold"
+              size="lg"
+            />
+          ) : (
+            <Text maxWidth="600px" size="lg" fontWeight="bold">
+              {rec.content}
+            </Text>
+          )}
+        </Box>
+      </Box>
+    )
   );
 }
