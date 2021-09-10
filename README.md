@@ -1,3 +1,9 @@
+# What is this
+
+This is a web scraper for the website www.perfectlyimperfect.fyi that scrapes the recommendation data and persists to a database.
+
+Not much is done with this data yet besides a [simple landing page](https://perfectly-imperfect.onrender.com/api/recs), an [endpoint containing the recommendations](https://perfectly-imperfect.onrender.com/api/recs), and a discord bot that provides you with a random recommendation.
+
 # Helpful scripts
 
 ## To set up
