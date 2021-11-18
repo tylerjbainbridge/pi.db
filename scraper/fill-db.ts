@@ -14,7 +14,18 @@ async function run() {
 
   console.log('Searching for posts...');
 
-  const urls = await getRecLinksFromArchive(browser);
+  let urls = await getRecLinksFromArchive(browser);
+
+  const lastFeatureToSync = await prisma.feature.findFirst({
+    orderBy: [
+      {
+        date: 'desc',
+      },
+    ],
+  });
+
+  const lastUrlIndex = urls.findIndex((url) => url === lastFeatureToSync?.url);
+  urls = urls.splice(0, lastUrlIndex);
 
   console.log(`Found ${urls.length} posts.`);
 
@@ -100,7 +111,16 @@ async function run() {
 const test = async () => {
   const browser = await launch();
 
+  const firstFeature = await prisma.feature.findFirst({
+    orderBy: [
+      {
+        date: 'desc',
+      },
+    ],
+  });
+
   console.log('testing...');
+  console.log(firstFeature);
 
   const parsed = await parseRecs(
     browser,

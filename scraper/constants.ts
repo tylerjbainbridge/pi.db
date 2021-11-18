@@ -5,4 +5,6 @@ export const URL_BLACKLIST_SET = new Set([
   'https://www.perfectlyimperfect.fyi/p/1-japanese-hip-hop-cowboy-hats-and',
   'https://www.perfectlyimperfect.fyi/p/coming-soon',
   'https://www.perfectlyimperfect.fyi/p/100-reflecting-on-recs',
+  'https://www.perfectlyimperfect.fyi/p/one-year-of-perfectly-imperfect',
+  'https://www.perfectlyimperfect.fyi/p/the-perfectly-imperfect-hat',
 ]);

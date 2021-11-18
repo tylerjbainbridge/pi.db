@@ -5,6 +5,7 @@ import express from 'express';
 const app = express();
 const port = 3000;
 import { recs } from './recs.json';
+import prisma from './lib/prisma';
 
 import next from 'next';
 
@@ -80,8 +81,20 @@ client.login(process.env.BOT_TOKEN);
         res.sendStatus(200);
       });
 
-      app.get('/api/recs', (_req, res) => {
-        res.json({ recs });
+      app.get('/api/recs', async (_req, res) => {
+        res.json({
+          recs: await prisma.rec.findMany({
+            orderBy: [
+              {
+                date: 'asc',
+              },
+            ],
+            include: {
+              guest: true,
+              feature: true,
+            },
+          }),
+        });
       });
 
       app.get('*', (req, res) => {
