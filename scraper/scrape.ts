@@ -183,6 +183,7 @@ export async function getRecLinksFromArchive(
   const scrollDelay = 200;
 
   // Ignore this type error
+  // @ts-ignore
   await scrollPageToBottom(page, scrollStep, scrollDelay);
 
   const urls = (

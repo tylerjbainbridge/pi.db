@@ -13,6 +13,7 @@ import { SearchIcon } from '@chakra-ui/icons';
 import prisma from '../lib/prisma';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Input } from '@chakra-ui/react';
+import _ from 'lodash';
 
 type ResultRec = Rec & {
   guest: Guest;
@@ -42,6 +43,7 @@ const recMap = new Map<string, ResultRec>();
 
 function buildSearchables(recs: ResultRec[]) {
   const sortedRecs = recs.sort(
+    // @ts-ignore
     (a, b) => (b?.feature?.date || 0) - (a?.feature?.date || 0)
   );
 
@@ -57,12 +59,6 @@ function buildSearchables(recs: ResultRec[]) {
   }
 }
 
-function searchRecs(recs: Props['recs']): Props['recs'][] {
-  return recs.filter((rec) => {
-    return [rec.title, rec.content, rec.guest.name].map((s) => s.toLowerCase());
-  });
-}
-
 export default function Search({ recs }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -75,8 +71,10 @@ export default function Search({ recs }: Props) {
       return [];
     }
 
+    const searchQueryLower = searchQuery.toLowerCase();
+
     return searchableRecs
-      .filter(([slug]) => slug.includes(searchQuery.toLowerCase()))
+      .filter(([slug]) => slug.includes(searchQueryLower))
       .map(([_slug, recId]) => {
         const rec = recMap.get(recId);
         if (rec == null) throw new Error();
@@ -106,24 +104,30 @@ export default function Search({ recs }: Props) {
       </Box>
       <Box display="flex" justifyContent="center" marginTop="50px">
         <Box width="700px">
-          {filterRecs().map((rec) => (
+          {_.slice(filterRecs(), 0, 10).map((rec) => (
             <Box display="flex" key={rec.id} marginBottom="30px">
-              <Box border="5px solid #ff0" marginEnd="15px">
+              <Box marginEnd="15px">
                 {rec.feature.thumbnailSrc ? (
                   <Image
                     src={rec.feature.thumbnailSrc}
+                    href={rec.feature.url}
                     width="100px"
                     height="100px"
+                    border="5px solid #ff0"
                   ></Image>
                 ) : (
-                  <Box width="100px" height="100px"></Box>
+                  <Box
+                    width="100px"
+                    height="100px"
+                    border="5px solid #ff0"
+                  ></Box>
                 )}
               </Box>
               <Box>
                 <Box fontWeight="bold" marginBottom="5px">
                   {rec.emoji} {rec.title}
                 </Box>
-                <Box>
+                <Box marginBottom="5px">
                   <em>from</em>{' '}
                   <Box
                     as="a"
@@ -134,6 +138,26 @@ export default function Search({ recs }: Props) {
                   >
                     {rec.feature.title}
                   </Box>
+                </Box>
+                <Box marginBottom="5px">
+                  {rec.contentHTML != null ? (
+                    <Text
+                      color="grey.100"
+                      maxWidth="600px"
+                      dangerouslySetInnerHTML={{ __html: rec.contentHTML }}
+                      size="sm"
+                      noOfLines={2}
+                    />
+                  ) : (
+                    <Text
+                      color="grey.100"
+                      maxWidth="600px"
+                      size="sm"
+                      noOfLines={2}
+                    >
+                      {rec.content}
+                    </Text>
+                  )}
                 </Box>
               </Box>
             </Box>

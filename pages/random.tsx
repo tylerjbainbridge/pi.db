@@ -79,6 +79,7 @@ export default function Random({ recs }: Props) {
           </Heading>
           <br />
           <Heading as="h4" size="md" fontFamily="Times New Roman">
+            {/** @ts-ignore */}
             By {rec?.guest?.name || ''}
           </Heading>
           <br />
