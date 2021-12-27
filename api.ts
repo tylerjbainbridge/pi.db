@@ -8,6 +8,7 @@ import { recs } from './recs.json';
 import prisma from './lib/prisma';
 
 import next from 'next';
+import { SYNC_STATUS, syncDB } from './scraper/fill-db';
 
 const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
@@ -16,16 +17,28 @@ const handle = nextApp.getRequestHandler();
 const client = new Discord.Client();
 
 client.on('ready', async () => {
-  console.log('ready!');
+  console.log('ready!!');
 });
 
-client.on('message', (msg) => {
-  //console.log(msg.author.id);
-
+client.on('message', async (msg) => {
   if (
-    msg.author.id === process.env.TYLER_USER_ID &&
+    msg.channel.id === process.env.ADMIN_DATA_CHANNEL_ID &&
     msg.content?.toLowerCase()?.trim() === 'pi sync'
   ) {
+    if (SYNC_STATUS === 'ACTIVE') {
+      msg.reply('Sync already in progress.');
+      return;
+    }
+
+    msg.reply('Starting sync...');
+    try {
+      const [seconds, syncedFeatures] = await syncDB();
+      msg.reply(`Synced ${syncedFeatures} features in ${seconds} seconds.`);
+    } catch (e) {
+      msg.reply('Something went wrong while syncing...');
+      return;
+    }
+    return;
   }
 
   if (msg.content?.toLowerCase()?.trim() === 'pi rec') {

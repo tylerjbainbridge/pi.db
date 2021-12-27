@@ -1,16 +1,29 @@
 import { GetStaticProps } from 'next';
 import { Rec, Guest, Feature } from '@prisma/client';
-import { Box, Heading, Text, Link } from '@chakra-ui/react';
-
+import {
+  Box,
+  Heading,
+  Text,
+  Link,
+  InputGroup,
+  InputLeftElement,
+  Image,
+} from '@chakra-ui/react';
+import { SearchIcon } from '@chakra-ui/icons';
 import prisma from '../lib/prisma';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Input } from '@chakra-ui/react';
+
+type ResultRec = Rec & {
+  guest: Guest;
+  feature: Feature;
+};
 
 interface Props {
-  recs: (Rec & {
-    guest: Guest;
-    feature: Feature;
-  })[];
+  recs: ResultRec[];
 }
+
+// import Image from 'next/image';
 
 // index.tsx
 export const getStaticProps: GetStaticProps = async (): Promise<{
@@ -24,82 +37,109 @@ export const getStaticProps: GetStaticProps = async (): Promise<{
   return { props: { recs } };
 };
 
-export default function Recs({ recs }: Props) {
-  const [rec, setRec] = useState<Rec | null>(null);
+const searchableRecs: [string, string][] = [];
+const recMap = new Map<string, ResultRec>();
+
+function buildSearchables(recs: ResultRec[]) {
+  const sortedRecs = recs.sort(
+    (a, b) => (b?.feature?.date || 0) - (a?.feature?.date || 0)
+  );
+
+  for (let i = 0; i < sortedRecs.length; i++) {
+    const rec = sortedRecs[i];
+    recMap.set(rec.id, rec);
+
+    const slug = [rec.title, rec.content, rec.guest.name]
+      .map((s) => s.toLowerCase())
+      .join('');
+
+    searchableRecs.push([slug, rec.id]);
+  }
+}
+
+function searchRecs(recs: Props['recs']): Props['recs'][] {
+  return recs.filter((rec) => {
+    return [rec.title, rec.content, rec.guest.name].map((s) => s.toLowerCase());
+  });
+}
+
+export default function Search({ recs }: Props) {
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    setRec(recs[Math.floor(Math.random() * recs.length)]);
+    buildSearchables(recs);
   }, []);
 
-  const displayOptions = [
-    {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    {
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start',
-    },
-    {
-      justifyContent: 'flex-end',
-      alignItems: 'flex-end',
-    },
-    {
-      justifyContent: 'flex-start',
-      alignItems: 'flex-end',
-    },
-    {
-      justifyContent: 'flex-end',
-      alignItems: 'flex-start',
-    },
-  ];
+  const filterRecs = useCallback(() => {
+    if (searchQuery.length === 0) {
+      return [];
+    }
 
-  const randomOption =
-    displayOptions[Math.floor(Math.random() * displayOptions.length)];
+    return searchableRecs
+      .filter(([slug]) => slug.includes(searchQuery.toLowerCase()))
+      .map(([_slug, recId]) => {
+        const rec = recMap.get(recId);
+        if (rec == null) throw new Error();
+        return rec;
+      });
+  }, [searchQuery]);
 
   return (
-    rec != null && (
-      <Box
-        p="45px"
-        width="100vw"
-        height="100vh"
-        display="flex"
-        bg="#0000ff"
-        color="white"
-        fontFamily="Times New Roman"
-        suppressHydrationWarning
-        {...randomOption}
-      >
-        <Box p="30px" border="15px solid #FFFF00" width="700px">
-          <Heading as="h2" size="xl" fontFamily="Times New Roman">
-            {rec.emoji}{' '}
-            {rec.url != null ? (
-              <Link isExternal href={rec.url}>
-                {rec.title.trim()}
-              </Link>
-            ) : (
-              rec.title.trim()
-            )}
-          </Heading>
-          <br />
-          <Heading as="h4" size="md" fontFamily="Times New Roman">
-            By {rec?.guest?.name || ''}
-          </Heading>
-          <br />
-          {rec.contentHTML != null ? (
-            <Text
-              maxWidth="600px"
-              dangerouslySetInnerHTML={{ __html: rec.contentHTML }}
-              fontWeight="bold"
-              size="lg"
+    <Box p="45px" color="white" suppressHydrationWarning>
+      <Box display="flex" justifyContent="center" marginTop="50px">
+        <Box width="500px">
+          <InputGroup>
+            <InputLeftElement
+              pointerEvents="none"
+              children={<SearchIcon color="gray.300" />}
             />
-          ) : (
-            <Text maxWidth="600px" size="lg" fontWeight="bold">
-              {rec.content}
-            </Text>
-          )}
+            <Input
+              placeholder="Search recommendations..."
+              borderColor="#FF0"
+              borderWidth="5px"
+              focusBorderColor="#FF0"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </InputGroup>
         </Box>
       </Box>
-    )
+      <Box display="flex" justifyContent="center" marginTop="50px">
+        <Box width="700px">
+          {filterRecs().map((rec) => (
+            <Box display="flex" key={rec.id} marginBottom="30px">
+              <Box border="5px solid #ff0" marginEnd="15px">
+                {rec.feature.thumbnailSrc ? (
+                  <Image
+                    src={rec.feature.thumbnailSrc}
+                    width="100px"
+                    height="100px"
+                  ></Image>
+                ) : (
+                  <Box width="100px" height="100px"></Box>
+                )}
+              </Box>
+              <Box>
+                <Box fontWeight="bold" marginBottom="5px">
+                  {rec.emoji} {rec.title}
+                </Box>
+                <Box>
+                  <em>from</em>{' '}
+                  <Box
+                    as="a"
+                    href={rec.feature.url}
+                    color="#FF0"
+                    fontWeight="bold"
+                    target="_blank"
+                  >
+                    {rec.feature.title}
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    </Box>
   );
 }

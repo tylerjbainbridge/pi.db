@@ -7,8 +7,9 @@
     "prod-build-next": "next build",
     "prod-start-next": "next start",
     "fill-db": "yarn ts-node ./scraper/fill-db.ts",
-    "reset-db": "yarn prisma migrate reset",
-    "init-db": "yarn prisma migrate && npx prisma generate",
+    "reset-db": "yarn prisma migrate reset && yarn prisma generate",
+    "init-db": "yarn prisma migrate && yarn prisma generate",
+    "sync-schema-migration": "npx prisma db push",
     "prod-build-api": "yarn tsc --resolveJsonModule --esModuleInterop --outDir dist/ api.ts",
     "prod-start-api": "node dist/api.js",
     "dev-start-api": "yarn ts-node api.ts",
@@ -23,6 +24,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^1.1.1",
     "@chakra-ui/react": "^1.6.6",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",

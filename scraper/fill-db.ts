@@ -5,9 +5,15 @@ import { getRecLinksFromArchive, parseRecs } from './scrape';
 import prisma from '../lib/prisma';
 import { URL_BLACKLIST_SET } from './constants';
 
+export let SYNC_STATUS = 'INACTIVE';
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function run() {
+export async function syncDB(
+  shouldOnlySyncNew: boolean = true
+): Promise<[seconds: number, syncedFeatures: number]> {
+  SYNC_STATUS = 'ACTIVE';
+
   const startTime = new Date();
 
   const browser = await launch();
@@ -16,24 +22,29 @@ async function run() {
 
   let urls = await getRecLinksFromArchive(browser);
 
-  const lastFeatureToSync = await prisma.feature.findFirst({
-    orderBy: [
-      {
-        date: 'desc',
-      },
-    ],
-  });
+  if (shouldOnlySyncNew) {
+    const lastFeatureToSync = await prisma.feature.findFirst({
+      orderBy: [
+        {
+          date: 'desc',
+        },
+      ],
+    });
 
-  const lastUrlIndex = urls.findIndex((url) => url === lastFeatureToSync?.url);
-  urls = urls.splice(0, lastUrlIndex);
+    const lastUrlIndex = urls.findIndex(
+      (url) => url === lastFeatureToSync?.url
+    );
+    urls = urls.splice(0, lastUrlIndex);
+  }
 
-  console.log(`Found ${urls.length} posts.`);
+  console.log(`Syncing ${urls.length} posts.`);
 
   await sleep(2000);
 
   const retried = new Set();
   const failedUrls: string[] = [];
   const skippedUrls: string[] = [];
+  let successfulSyncs = 0;
 
   const retry = async (url: string) => {
     if (!retried.has(url)) {
@@ -72,18 +83,21 @@ async function run() {
         continue;
       }
 
-      const existingFeature = await prisma.feature.findUnique({
-        where: { url: parsedFeature.url },
-      });
+      if (shouldOnlySyncNew) {
+        const existingFeature = await prisma.feature.findUnique({
+          where: { url: parsedFeature.url },
+        });
 
-      if (existingFeature != null) {
-        console.log('Up to date...returning early.');
-        break;
+        if (existingFeature != null) {
+          console.log('Up to date...returning early.');
+          break;
+        }
       }
 
       console.log(`Saving feature: "${parsedFeature.title}"`);
       const feature = await persistFeature(parsedFeature);
       console.log(`Saved feature: "${feature.id}"`);
+      successfulSyncs++;
     } catch (e) {
       console.log(e);
 
@@ -105,28 +119,17 @@ async function run() {
 
   console.log(`Completed in ${seconds} seconds.`);
 
-  process.exit();
+  SYNC_STATUS = 'INACTIVE';
+
+  return [seconds, successfulSyncs];
 }
 
 const test = async () => {
   const browser = await launch();
 
-  const firstFeature = await prisma.feature.findFirst({
-    orderBy: [
-      {
-        date: 'desc',
-      },
-    ],
-  });
-
-  console.log('testing...');
-  console.log(firstFeature);
-
   const parsed = await parseRecs(
     browser,
-    // With semi colons.
-    'https://www.perfectlyimperfect.fyi/p/101-dylan-gelula'
-    // 'https://www.perfectlyimperfect.fyi/p/94-betsey-brown',
+    'https://www.perfectlyimperfect.fyi/p/137-sarah-squirm-snl'
   );
 
   console.log(JSON.stringify(parsed, null, 2));
@@ -138,6 +141,6 @@ const dbTest = async () => {
   console.log();
 };
 
-saveToJson();
+// saveToJson();
 // test();
-// run();
+syncDB();

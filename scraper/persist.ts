@@ -1,4 +1,4 @@
-import { Feature, Guest, PrismaClient } from '@prisma/client';
+import { Feature, Guest, Rec, PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 import type { ParsedRec, ParsedGuest, ParsedFeature } from '../types';
@@ -21,8 +21,20 @@ export const persistRecs = async (
   let recs = [];
 
   for (const parsedRec of parsedRecs) {
-    recs.push(
-      await prisma.rec.create({
+    let rec = await prisma.rec.findFirst({
+      where: {
+        content: parsedRec.content,
+        feature: {
+          id: feature.id,
+        },
+        guest: {
+          id: guest.id,
+        },
+      },
+    });
+
+    if (rec == null) {
+      rec = await prisma.rec.create({
         data: {
           ...parsedRec,
           guest: {
@@ -36,15 +48,36 @@ export const persistRecs = async (
             },
           },
         },
-      })
-    );
+      });
+    } else {
+      rec = await prisma.rec.update({
+        where: {
+          id: rec.id,
+        },
+        data: {
+          ...parsedRec,
+          guest: {
+            connect: {
+              id: guest.id,
+            },
+          },
+          feature: {
+            connect: {
+              id: feature.id,
+            },
+          },
+        },
+      });
+    }
+
+    recs.push(rec);
   }
 
   return recs;
 };
 
 export const persistGuest = async (feature: Feature, { name }: ParsedGuest) => {
-  let [guest] = await prisma.guest.findMany({ where: { name } });
+  let guest = await prisma.guest.findFirst({ where: { name } });
 
   if (guest == null) {
     return await prisma.guest.create({
@@ -56,11 +89,12 @@ export const persistGuest = async (feature: Feature, { name }: ParsedGuest) => {
       },
     });
   } else {
-    await prisma.guest.update({
+    guest = await prisma.guest.update({
       where: {
         id: guest.id,
       },
       data: {
+        name: name || guest.name,
         features: {
           connect: { id: feature.id },
         },
@@ -77,9 +111,10 @@ export const persistFeature = async ({
   intro,
   introHTML,
   date,
+  thumbnailSrc,
   guests: parsedGuests,
 }: ParsedFeature) => {
-  let [feature] = await prisma.feature.findMany({ where: { url } });
+  let feature = await prisma.feature.findFirst({ where: { url } });
 
   if (!feature) {
     feature = await prisma.feature.create({
@@ -89,6 +124,21 @@ export const persistFeature = async ({
         intro,
         introHTML,
         date,
+        thumbnailSrc,
+      },
+    });
+  } else {
+    feature = await prisma.feature.update({
+      where: {
+        id: feature.id,
+      },
+      data: {
+        url: url || feature.url,
+        title: title || feature.title,
+        intro: intro || feature.intro,
+        introHTML: introHTML || feature.introHTML,
+        date: date || feature.date,
+        thumbnailSrc: thumbnailSrc || feature.thumbnailSrc,
       },
     });
   }

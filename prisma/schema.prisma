@@ -24,6 +24,8 @@ model Feature {
   url       String  @unique
   intro     String?
   introHTML String?
+  
+  thumbnailSrc String?
 
   date DateTime?
 

@@ -42,10 +42,18 @@ export async function parseRecs(
       document.querySelectorAll('h1.post-title')[0] as HTMLElement
     )?.innerText;
 
+    parsedFeature.thumbnailSrc =
+      (
+        document.querySelectorAll(
+          'head > meta[property="og:image"]'
+        )[0] as HTMLMetaElement
+      )?.content || null;
+
     let [bodyMarkup] = Array.from(document.querySelectorAll('.body'));
 
-    const dateStr = (document.querySelectorAll('.post-date')[0] as HTMLElement)
-      ?.getAttribute("title");
+    const dateStr = (
+      document.querySelectorAll('.post-date')[0] as HTMLElement
+    )?.getAttribute('title');
 
     try {
       parsedFeature.date =
