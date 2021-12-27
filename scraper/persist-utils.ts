@@ -1,11 +1,9 @@
 import { Feature, Guest, Rec, PrismaClient } from '@prisma/client';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import type { ParsedRec, ParsedGuest, ParsedFeature } from '../types';
 
 const prisma = new PrismaClient();
-
-const SHOULD_REPLACE = false;
 
 export const deleteAll = async () => {
   await prisma.feature.deleteMany({});
@@ -13,7 +11,7 @@ export const deleteAll = async () => {
   await prisma.rec.deleteMany({});
 };
 
-export const persistRecs = async (
+export const saveRecs = async (
   guest: Guest,
   feature: Feature,
   parsedRecs: ParsedRec[]
@@ -76,7 +74,7 @@ export const persistRecs = async (
   return recs;
 };
 
-export const persistGuest = async (feature: Feature, { name }: ParsedGuest) => {
+export const saveGuest = async (feature: Feature, { name }: ParsedGuest) => {
   let guest = await prisma.guest.findFirst({ where: { name } });
 
   if (guest == null) {
@@ -105,7 +103,7 @@ export const persistGuest = async (feature: Feature, { name }: ParsedGuest) => {
   return guest;
 };
 
-export const persistFeature = async ({
+export const saveFeature = async ({
   title,
   url,
   intro,
@@ -144,9 +142,9 @@ export const persistFeature = async ({
   }
 
   for (const parsedGuest of parsedGuests) {
-    const guest = await persistGuest(feature, parsedGuest);
+    const guest = await saveGuest(feature, parsedGuest);
 
-    await persistRecs(guest, feature, parsedGuest.recs);
+    await saveRecs(guest, feature, parsedGuest.recs);
   }
 
   return feature;
@@ -168,7 +166,7 @@ export const saveToJson = async () => {
     4
   );
 
-  fs.writeFileSync(path.join('__dirname', '../recs.json'), recJSONStr);
+  await fs.writeFile(path.join('__dirname', '../recs.json'), recJSONStr);
 
   console.log('Done saving to JSON...');
 };

@@ -4,17 +4,23 @@ require('dotenv').config();
 import express from 'express';
 const app = express();
 const port = 3000;
-import { recs } from './recs.json';
 import prisma from './lib/prisma';
 
 import next from 'next';
-import { SYNC_STATUS, syncDB } from './scraper/fill-db';
+import { SYNC_STATUS, syncDB } from './scraper/sync-utils';
+import { Feature, Guest, Rec } from '@prisma/client';
 
 const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 
+type ResultRec = Rec & {
+  guest: Guest;
+  feature: Feature;
+};
+
 const client = new Discord.Client();
+let recs: ResultRec[] = [];
 
 client.on('ready', async () => {
   console.log('ready!!');
@@ -36,12 +42,30 @@ client.on('message', async (msg) => {
       msg.reply(`Synced ${syncedFeatures} features in ${seconds} seconds.`);
     } catch (e) {
       msg.reply('Something went wrong while syncing...');
-      return;
     }
+
+    recs = await prisma.rec.findMany({
+      include: {
+        guest: true,
+        feature: true,
+      },
+    });
+
+    msg.reply('Discord rec cache updated...');
+
     return;
   }
 
   if (msg.content?.toLowerCase()?.trim() === 'pi rec') {
+    if (recs.length === 0) {
+      recs = await prisma.rec.findMany({
+        include: {
+          guest: true,
+          feature: true,
+        },
+      });
+    }
+
     const rec = _.sample(recs);
 
     console.log('responding with rec!', rec?.id);

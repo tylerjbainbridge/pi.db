@@ -67,3 +67,15 @@ model Category {
   name String
   recs RecCategory[]
 }
+
+model ScraperLog {
+  id   String        @id @default(cuid())
+  timestamp        DateTime           @default(now())
+
+  syncedUrlsCount Int
+  seconds Int
+
+  failedUrls String[]
+  skippedUrls String[]
+  syncedUrls String[]
+}

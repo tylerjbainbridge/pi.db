@@ -8,12 +8,18 @@ import {
   InputGroup,
   InputLeftElement,
   Image,
+  LinkBox,
+  LinkOverlay,
+  Button,
+  ButtonGroup,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import prisma from '../lib/prisma';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Input } from '@chakra-ui/react';
 import _ from 'lodash';
+
+const PAGE_SIZE = 50;
 
 type ResultRec = Rec & {
   guest: Guest;
@@ -61,14 +67,23 @@ function buildSearchables(recs: ResultRec[]) {
 
 export default function Search({ recs }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isReady, setIsReady] = useState(false);
+  const [limit, setLimit] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    document.title = 'PI Search';
+  }, []);
 
   useEffect(() => {
     buildSearchables(recs);
+    setIsReady(true);
   }, []);
 
-  const filterRecs = useCallback(() => {
+  const filteredRecs = useMemo(() => {
+    if (limit !== PAGE_SIZE) setLimit(PAGE_SIZE);
+
     if (searchQuery.length === 0) {
-      return [];
+      return _.shuffle(recs);
     }
 
     const searchQueryLower = searchQuery.toLowerCase();
@@ -104,64 +119,95 @@ export default function Search({ recs }: Props) {
       </Box>
       <Box display="flex" justifyContent="center" marginTop="50px">
         <Box width="700px">
-          {_.slice(filterRecs(), 0, 10).map((rec) => (
-            <Box display="flex" key={rec.id} marginBottom="30px">
-              <Box marginEnd="15px">
-                {rec.feature.thumbnailSrc ? (
-                  <Image
-                    src={rec.feature.thumbnailSrc}
-                    href={rec.feature.url}
-                    width="100px"
-                    height="100px"
-                    border="5px solid #ff0"
-                  ></Image>
-                ) : (
+          {isReady &&
+            _.slice(filteredRecs, 0, limit).map((rec) => (
+              <Box display="flex" key={rec.id} marginBottom="30px">
+                <LinkBox marginEnd="15px" as={Box}>
+                  <LinkOverlay href={rec.feature.url} alt={rec.feature.title} />
+                  {rec.feature.thumbnailSrc ? (
+                    <Image
+                      src={rec.feature.thumbnailSrc}
+                      width="100px"
+                      height="100px"
+                      border="5px solid #ff0"
+                    ></Image>
+                  ) : (
+                    <Box
+                      width="100px"
+                      height="100px"
+                      border="5px solid #ff0"
+                    ></Box>
+                  )}
+                </LinkBox>
+                <Box>
                   <Box
-                    width="100px"
-                    height="100px"
-                    border="5px solid #ff0"
-                  ></Box>
-                )}
-              </Box>
-              <Box>
-                <Box fontWeight="bold" marginBottom="5px">
-                  {rec.emoji} {rec.title}
-                </Box>
-                <Box marginBottom="5px">
-                  <em>from</em>{' '}
-                  <Box
-                    as="a"
-                    href={rec.feature.url}
-                    color="#FF0"
                     fontWeight="bold"
-                    target="_blank"
+                    marginBottom="5px"
+                    as="a"
+                    color="#FF0"
+                    href={rec.feature.url}
                   >
-                    {rec.feature.title}
+                    {rec.emoji} {rec.title}
+                  </Box>
+                  <Box marginBottom="5px">
+                    <em>from</em>{' '}
+                    <Box
+                      as="a"
+                      href={rec.feature.url}
+                      fontWeight="bold"
+                      target="_blank"
+                    >
+                      {rec.feature.title}
+                    </Box>
+                  </Box>
+                  <Box marginBottom="5px">
+                    {rec.contentHTML != null ? (
+                      <Text
+                        color="grey.100"
+                        maxWidth="600px"
+                        dangerouslySetInnerHTML={{ __html: rec.contentHTML }}
+                        size="sm"
+                        noOfLines={2}
+                      />
+                    ) : (
+                      <Text
+                        color="grey.100"
+                        maxWidth="600px"
+                        size="sm"
+                        noOfLines={2}
+                      >
+                        {rec.content}
+                      </Text>
+                    )}
                   </Box>
                 </Box>
-                <Box marginBottom="5px">
-                  {rec.contentHTML != null ? (
-                    <Text
-                      color="grey.100"
-                      maxWidth="600px"
-                      dangerouslySetInnerHTML={{ __html: rec.contentHTML }}
-                      size="sm"
-                      noOfLines={2}
-                    />
-                  ) : (
-                    <Text
-                      color="grey.100"
-                      maxWidth="600px"
-                      size="sm"
-                      noOfLines={2}
-                    >
-                      {rec.content}
-                    </Text>
-                  )}
-                </Box>
               </Box>
-            </Box>
-          ))}
+            ))}
+
+          <ButtonGroup spacing="6">
+            {filteredRecs.length > limit && (
+              <Button
+                bgColor="blue"
+                color="#ff0"
+                _hover={{ bg: '#ff0', color: 'blue' }}
+                onClick={() => setLimit(limit + PAGE_SIZE)}
+              >
+                Show more ({Math.min(limit, filteredRecs.length)}/
+                {filteredRecs.length})
+              </Button>
+            )}
+            <Button
+              bgColor="blue"
+              color="#ff0"
+              _hover={{ bg: '#ff0', color: 'blue' }}
+              onClick={() => {
+                document.body.scrollTop = 0; // For Safari
+                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+              }}
+            >
+              Back to top
+            </Button>
+          </ButtonGroup>
         </Box>
       </Box>
     </Box>

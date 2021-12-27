@@ -5,7 +5,7 @@ import type { ParsedRec, ParsedGuest, ParsedFeature } from '../types';
 
 const ARCHIVE_URL = 'https://www.perfectlyimperfect.fyi/archive?sort=new';
 
-export async function parseRecs(
+export async function getDataFromFeatureLinks(
   browser: puppeteer.Browser,
   url: string
 ): Promise<ParsedFeature> {
@@ -172,9 +172,9 @@ export async function parseRecs(
   return f;
 }
 
-export async function getRecLinksFromArchive(
+export async function getFeatureLinksFromArchive(
   browser: puppeteer.Browser
-): Promise<(string | null)[]> {
+): Promise<string[]> {
   const page = await browser.newPage();
 
   await page.goto(ARCHIVE_URL);
@@ -196,5 +196,5 @@ export async function getRecLinksFromArchive(
 
   await page.close();
 
-  return urls;
+  return urls.filter(Boolean);
 }

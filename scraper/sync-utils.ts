@@ -1,16 +1,22 @@
 import { launch } from 'puppeteer';
-import { persistFeature, saveToJson } from './persist';
+import { saveFeature, saveToJson } from './persist-utils';
 import type { ParsedFeature } from '../types';
-import { getRecLinksFromArchive, parseRecs } from './scrape';
+import {
+  getFeatureLinksFromArchive,
+  getDataFromFeatureLinks,
+} from './scrape-utils';
 import prisma from '../lib/prisma';
 import { URL_BLACKLIST_SET } from './constants';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export let SYNC_STATUS = 'INACTIVE';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function syncDB(
-  shouldOnlySyncNew: boolean = true
+  shouldOnlySyncNew: boolean = true,
+  urlsToSync?: string[]
 ): Promise<[seconds: number, syncedFeatures: number]> {
   SYNC_STATUS = 'ACTIVE';
 
@@ -20,7 +26,7 @@ export async function syncDB(
 
   console.log('Searching for posts...');
 
-  let urls = await getRecLinksFromArchive(browser);
+  let urls = urlsToSync || (await getFeatureLinksFromArchive(browser));
 
   if (shouldOnlySyncNew) {
     const lastFeatureToSync = await prisma.feature.findFirst({
@@ -44,7 +50,9 @@ export async function syncDB(
   const retried = new Set();
   const failedUrls: string[] = [];
   const skippedUrls: string[] = [];
-  let successfulSyncs = 0;
+  const syncedUrls: string[] = [];
+
+  let syncedUrlsCount = 0;
 
   const retry = async (url: string) => {
     if (!retried.has(url)) {
@@ -65,7 +73,10 @@ export async function syncDB(
 
     try {
       console.log(`Parsing: "${url}"`);
-      const parsedFeature: ParsedFeature = await parseRecs(browser, url);
+      const parsedFeature: ParsedFeature = await getDataFromFeatureLinks(
+        browser,
+        url
+      );
       console.log(`Parsed feature: "${parsedFeature.title}"`);
 
       if (!parsedFeature?.title) {
@@ -95,9 +106,10 @@ export async function syncDB(
       }
 
       console.log(`Saving feature: "${parsedFeature.title}"`);
-      const feature = await persistFeature(parsedFeature);
+      const feature = await saveFeature(parsedFeature);
       console.log(`Saved feature: "${feature.id}"`);
-      successfulSyncs++;
+      syncedUrlsCount++;
+      syncedUrls.push(url);
     } catch (e) {
       console.log(e);
 
@@ -106,8 +118,6 @@ export async function syncDB(
 
     await sleep(5000);
   }
-
-  console.log({ failedUrls, skippedUrls });
 
   await saveToJson();
 
@@ -121,26 +131,31 @@ export async function syncDB(
 
   SYNC_STATUS = 'INACTIVE';
 
-  return [seconds, successfulSyncs];
-}
+  const logData = {
+    timestamp: new Date(),
+    seconds,
+    failedUrls,
+    skippedUrls,
+    syncedUrlsCount,
+    syncedUrls,
+  };
 
-const test = async () => {
-  const browser = await launch();
+  console.log(JSON.stringify(logData, null, 4));
 
-  const parsed = await parseRecs(
-    browser,
-    'https://www.perfectlyimperfect.fyi/p/137-sarah-squirm-snl'
+  await fs.writeFile(
+    path.join('__dirname', '../scraper-log.json'),
+    JSON.stringify(logData, null, 4)
   );
 
-  console.log(JSON.stringify(parsed, null, 2));
-};
+  await prisma.scraperLog.create({
+    data: {
+      seconds,
+      failedUrls,
+      skippedUrls,
+      syncedUrlsCount,
+      syncedUrls,
+    },
+  });
 
-const dbTest = async () => {
-  const feature = await prisma.feature.findMany();
-
-  console.log();
-};
-
-// saveToJson();
-// test();
-syncDB();
+  return [seconds, syncedUrlsCount];
+}

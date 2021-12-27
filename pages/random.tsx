@@ -5,11 +5,13 @@ import { Box, Heading, Text, Link } from '@chakra-ui/react';
 import prisma from '../lib/prisma';
 import React, { useEffect, useState } from 'react';
 
+type ResultRec = Rec & {
+  guest: Guest;
+  feature: Feature;
+};
+
 interface Props {
-  recs: (Rec & {
-    guest: Guest;
-    feature: Feature;
-  })[];
+  recs: ResultRec[];
 }
 
 // index.tsx
@@ -25,7 +27,11 @@ export const getStaticProps: GetStaticProps = async (): Promise<{
 };
 
 export default function Random({ recs }: Props) {
-  const [rec, setRec] = useState<Rec | null>(null);
+  const [rec, setRec] = useState<ResultRec | null>(null);
+
+  useEffect(() => {
+    document.title = 'PI Random';
+  }, []);
 
   useEffect(() => {
     setRec(recs[Math.floor(Math.random() * recs.length)]);
@@ -67,7 +73,7 @@ export default function Random({ recs }: Props) {
         {...randomOption}
       >
         <Box p="30px" border="15px solid #FFFF00" width="700px">
-          <Heading as="h2" size="xl" fontFamily="Times New Roman">
+          <Heading as="h4" size="lg">
             {rec.emoji}{' '}
             {rec.url != null ? (
               <Link isExternal href={rec.url}>
@@ -78,20 +84,26 @@ export default function Random({ recs }: Props) {
             )}
           </Heading>
           <br />
-          <Heading as="h4" size="md" fontFamily="Times New Roman">
-            {/** @ts-ignore */}
-            By {rec?.guest?.name || ''}
-          </Heading>
+          <Box marginBottom="3px">
+            <em>from</em>{' '}
+            <Box
+              as="a"
+              href={rec.feature.url}
+              fontWeight="bold"
+              target="_blank"
+            >
+              {rec.feature.title}
+            </Box>
+          </Box>
           <br />
           {rec.contentHTML != null ? (
             <Text
               maxWidth="600px"
               dangerouslySetInnerHTML={{ __html: rec.contentHTML }}
-              fontWeight="bold"
-              size="lg"
+              size="md"
             />
           ) : (
-            <Text maxWidth="600px" size="lg" fontWeight="bold">
+            <Text maxWidth="600px" size="md">
               {rec.content}
             </Text>
           )}
