@@ -30,7 +30,7 @@ interface Props {
   recs: ResultRec[];
 }
 
-// import Image from 'next/image';
+import NextImage from 'next/image';
 
 // index.tsx
 export const getStaticProps: GetStaticProps = async (): Promise<{
@@ -99,6 +99,14 @@ export default function Search({ recs }: Props) {
 
   return (
     <Box p="45px" color="white" suppressHydrationWarning>
+      <Box display="flex" justifyContent="center" marginTop="50px">
+        <NextImage
+          src="/static/pi-logo.png"
+          alt="pi-logo"
+          width="200px"
+          height="80px"
+        />
+      </Box>
       <Box display="flex" justifyContent="center" marginTop="50px">
         <Box width="500px">
           <InputGroup>
