@@ -123,7 +123,11 @@ export default function Search({ recs }: Props) {
             _.slice(filteredRecs, 0, limit).map((rec) => (
               <Box display="flex" key={rec.id} marginBottom="30px">
                 <LinkBox marginEnd="15px" as={Box}>
-                  <LinkOverlay href={rec.feature.url} alt={rec.feature.title} />
+                  <LinkOverlay
+                    href={rec.feature.url}
+                    alt={rec.feature.title}
+                    target="_blank"
+                  />
                   {rec.feature.thumbnailSrc ? (
                     <Image
                       src={rec.feature.thumbnailSrc}
