@@ -1,10 +1,12 @@
 const CATEGORIES = {
-  PLANTS: 'plants',
-  MUSIC: 'music',
-  FOOD: 'food',
+  plants: 'plants',
+  music: ['🎤'],
+  food: 'food',
   SHOES: 'shoes',
   TV: 'tv',
   MOVIE: 'movies',
+  CANDY: ['🍭'],
+  FOOD: ['🍭'],
 };
 
 const mappings = {};

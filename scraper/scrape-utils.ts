@@ -196,5 +196,6 @@ export async function getFeatureLinksFromArchive(
 
   await page.close();
 
+  // @ts-ignore
   return urls.filter(Boolean);
 }

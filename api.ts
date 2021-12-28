@@ -51,7 +51,7 @@ client.on('message', async (msg) => {
       },
     });
 
-    msg.reply('Discord rec cache updated...');
+    msg.reply('Done.');
 
     return;
   }

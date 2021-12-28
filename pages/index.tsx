@@ -2,9 +2,7 @@ import { GetStaticProps } from 'next';
 import { Rec, Guest, Feature } from '@prisma/client';
 import {
   Box,
-  Heading,
   Text,
-  Link,
   InputGroup,
   InputLeftElement,
   Image,
@@ -128,73 +126,73 @@ export default function Search({ recs }: Props) {
       <Box display="flex" justifyContent="center" marginTop="50px">
         <Box width="700px">
           {isReady &&
-            _.slice(filteredRecs, 0, limit).map((rec) => (
-              <Box display="flex" key={rec.id} marginBottom="30px">
-                <LinkBox marginEnd="15px" as={Box}>
-                  <LinkOverlay
-                    href={rec.feature.url}
-                    alt={rec.feature.title}
-                    target="_blank"
-                  />
-                  {rec.feature.thumbnailSrc ? (
-                    <Image
-                      src={rec.feature.thumbnailSrc}
-                      width="100px"
-                      height="100px"
-                      border="5px solid #ff0"
-                    ></Image>
-                  ) : (
-                    <Box
-                      width="100px"
-                      height="100px"
-                      border="5px solid #ff0"
-                    ></Box>
-                  )}
-                </LinkBox>
-                <Box>
-                  <Box
-                    fontWeight="bold"
-                    marginBottom="5px"
-                    as="a"
-                    color="#FF0"
-                    href={rec.feature.url}
-                  >
-                    {rec.emoji} {rec.title}
-                  </Box>
-                  <Box marginBottom="5px">
-                    <em>from</em>{' '}
-                    <Box
-                      as="a"
-                      href={rec.feature.url}
-                      fontWeight="bold"
+            _.slice(filteredRecs, 0, limit).map((rec) => {
+              const href = `${rec.feature.url}#:~:text=${encodeURI(rec.title)}`;
+              return (
+                <Box display="flex" key={rec.id} marginBottom="30px">
+                  <LinkBox marginEnd="15px" as={Box}>
+                    <LinkOverlay
+                      href={href}
+                      alt={rec.feature.title}
                       target="_blank"
+                    />
+                    {rec.feature.thumbnailSrc ? (
+                      <Image
+                        src={rec.feature.thumbnailSrc}
+                        width="100px"
+                        height="100px"
+                        maxWidth="100px"
+                        maxHeight="100px"
+                        border="5px solid #ff0"
+                      ></Image>
+                    ) : (
+                      <Box
+                        maxWidth="100px"
+                        maxHeight="100px"
+                        border="5px solid #ff0"
+                      ></Box>
+                    )}
+                  </LinkBox>
+                  <Box>
+                    <Box
+                      fontWeight="bold"
+                      marginBottom="5px"
+                      as="a"
+                      color="#FF0"
+                      href={href}
                     >
-                      {rec.feature.title}
+                      {rec.emoji} {rec.title}
+                    </Box>
+                    <Box marginBottom="5px">
+                      <em>from</em>{' '}
+                      <Box as="a" href={href} fontWeight="bold" target="_blank">
+                        {rec.feature.title}
+                      </Box>
+                    </Box>
+                    <Box marginBottom="5px">
+                      {rec.contentHTML != null ? (
+                        <Text
+                          color="grey.100"
+                          maxWidth="600px"
+                          dangerouslySetInnerHTML={{ __html: rec.contentHTML }}
+                          size="sm"
+                          noOfLines={2}
+                        />
+                      ) : (
+                        <Text
+                          color="grey.100"
+                          maxWidth="600px"
+                          size="sm"
+                          noOfLines={2}
+                        >
+                          {rec.content}
+                        </Text>
+                      )}
                     </Box>
                   </Box>
-                  <Box marginBottom="5px">
-                    {rec.contentHTML != null ? (
-                      <Text
-                        color="grey.100"
-                        maxWidth="600px"
-                        dangerouslySetInnerHTML={{ __html: rec.contentHTML }}
-                        size="sm"
-                        noOfLines={2}
-                      />
-                    ) : (
-                      <Text
-                        color="grey.100"
-                        maxWidth="600px"
-                        size="sm"
-                        noOfLines={2}
-                      >
-                        {rec.content}
-                      </Text>
-                    )}
-                  </Box>
                 </Box>
-              </Box>
-            ))}
+              );
+            })}
 
           <ButtonGroup spacing="6">
             {filteredRecs.length > limit && (
