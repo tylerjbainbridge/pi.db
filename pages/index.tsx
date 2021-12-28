@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import prisma from '../lib/prisma';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Input } from '@chakra-ui/react';
 import _ from 'lodash';
 
@@ -81,7 +81,7 @@ export default function Search({ recs }: Props) {
     if (limit !== PAGE_SIZE) setLimit(PAGE_SIZE);
 
     if (searchQuery.length === 0) {
-      return _.shuffle(recs);
+      return recs;
     }
 
     const searchQueryLower = searchQuery.toLowerCase();
@@ -98,12 +98,14 @@ export default function Search({ recs }: Props) {
   return (
     <Box p="45px" color="white" suppressHydrationWarning>
       <Box display="flex" justifyContent="center" marginTop="50px">
-        <NextImage
-          src="/static/pi-logo.png"
-          alt="pi-logo"
-          width="200px"
-          height="80px"
-        />
+        <a href="https://www.perfectlyimperfect.fyi/" target="_blank">
+          <NextImage
+            src="/static/pi-logo.png"
+            alt="pi-logo"
+            width="200px"
+            height="80px"
+          />
+        </a>
       </Box>
       <Box display="flex" justifyContent="center" marginTop="50px">
         <Box width="500px">
