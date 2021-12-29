@@ -17,7 +17,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export async function syncDB(
   shouldOnlySyncNew: boolean = true,
   urlsToSync?: string[]
-): Promise<[seconds: number, syncedFeatures: number]> {
+) {
   SYNC_STATUS = 'ACTIVE';
 
   const startTime = new Date();
@@ -157,5 +157,24 @@ export async function syncDB(
     },
   });
 
-  return [seconds, syncedUrlsCount];
+  return logData;
+}
+
+export async function getFailedURLs() {
+  const [logData] = await prisma.scraperLog.findMany({
+    orderBy: [
+      {
+        timestamp: 'desc',
+      },
+    ],
+    take: 1,
+  });
+
+  if (logData == null || logData.failedUrls.length === 0) {
+    throw new Error('No failed URLs found.');
+  }
+
+  console.log(`${logData.failedUrls.length} Failed URL(s) found`);
+
+  return logData.failedUrls;
 }

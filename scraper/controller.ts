@@ -1,8 +1,5 @@
 import { Command } from 'commander';
-import { syncDB } from './sync-utils';
-import { promises as fs } from 'fs';
-import path from 'path';
-import prisma from '../lib/prisma';
+import { syncDB, getFailedURLs } from './sync-utils';
 
 const program = new Command();
 
@@ -29,15 +26,3 @@ const options = program.opts();
 
   return await syncDB(true);
 })();
-
-async function getFailedURLs() {
-  const logData = await prisma.scraperLog.findFirst();
-
-  if (logData == null || logData.failedUrls.length === 0) {
-    throw new Error('No failed URLs found.');
-  }
-
-  console.log(`${logData.failedUrls.length} Failed URL(s) found`);
-
-  return logData.failedUrls;
-}

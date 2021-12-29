@@ -7,7 +7,7 @@ const port = 3000;
 import prisma from './lib/prisma';
 
 import next from 'next';
-import { SYNC_STATUS, syncDB } from './scraper/sync-utils';
+import { SYNC_STATUS, syncDB, getFailedURLs } from './scraper/sync-utils';
 import { Feature, Guest, Rec } from '@prisma/client';
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -27,19 +27,36 @@ client.on('ready', async () => {
 });
 
 client.on('message', async (msg) => {
+  const content = msg.content?.toLowerCase()?.trim();
+
+  if (!content.startsWith('pi')) {
+    return;
+  }
+
   if (
     msg.channel.id === process.env.ADMIN_DATA_CHANNEL_ID &&
-    msg.content?.toLowerCase()?.trim() === 'pi sync'
+    (content === 'pi sync' || content === 'pi sync retry')
   ) {
     if (SYNC_STATUS === 'ACTIVE') {
       msg.reply('Sync already in progress.');
       return;
     }
 
+    let logData;
+
+    if (content === 'pi sync retry') {
+      logData = await syncDB(false, await getFailedURLs());
+    } else {
+      logData = await syncDB();
+    }
+
     msg.reply('Starting sync...');
     try {
-      const [seconds, syncedFeatures] = await syncDB();
-      msg.reply(`Synced ${syncedFeatures} features in ${seconds} seconds.`);
+      msg.reply(
+        `Synced ${logData.syncedUrlsCount} features in ${logData.seconds} seconds.`
+      );
+
+      msg.reply(JSON.stringify(logData, null, 5));
     } catch (e) {
       msg.reply('Something went wrong while syncing...');
     }
@@ -56,7 +73,7 @@ client.on('message', async (msg) => {
     return;
   }
 
-  if (msg.content?.toLowerCase()?.trim() === 'pi rec') {
+  if (content === 'pi rec') {
     if (recs.length === 0) {
       recs = await prisma.rec.findMany({
         include: {
