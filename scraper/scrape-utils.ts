@@ -81,7 +81,9 @@ export async function getDataFromFeatureLinks(
           ? n
           : n.parentElement?.parentElement;
 
-        return [...acc, topLevelNode];
+        acc.push(topLevelNode);
+
+        return acc;
       }
 
       return acc;
@@ -102,7 +104,7 @@ export async function getDataFromFeatureLinks(
       guest.name = nameContainer?.innerText?.split('(')[0].trim();
 
       let iter = nameContainer.nextElementSibling;
-      let currRec: ParsedRec = { ...EMPTY_REC };
+      let currRec: ParsedRec = Object.assign({}, EMPTY_REC);
 
       // Continue walking the nodes under the banner until we encounter
       // Something that isn't a <p> or <blockquote> (not relevant)
@@ -128,7 +130,7 @@ export async function getDataFromFeatureLinks(
 
                 break;
               } else if (node.children?.length) {
-                stack = [...stack, ...node.children];
+                stack.concat(node.children);
               }
             }
 
@@ -149,7 +151,7 @@ export async function getDataFromFeatureLinks(
             guest.recs.push(currRec);
 
             // Clear current rec.
-            currRec = { ...EMPTY_REC };
+            currRec = Object.assign({}, EMPTY_REC);
             break;
           }
         }
