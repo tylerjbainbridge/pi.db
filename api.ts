@@ -19,6 +19,8 @@ type ResultRec = Rec & {
   feature: Feature;
 };
 
+const trigger = process.env.NODE_ENV !== 'production' ? 'pitest' : 'pi';
+
 const client = new Discord.Client();
 let recs: ResultRec[] = [];
 
@@ -29,13 +31,13 @@ client.on('ready', async () => {
 client.on('message', async (msg) => {
   const content = msg.content?.toLowerCase()?.trim();
 
-  if (!content.startsWith('pi')) {
+  if (!content.startsWith(trigger)) {
     return;
   }
 
   if (
     msg.channel.id === process.env.ADMIN_DATA_CHANNEL_ID &&
-    (content === 'pi sync' || content === 'pi sync retry')
+    (content === `${trigger} sync` || content === `${trigger} sync retry`)
   ) {
     if (SYNC_STATUS === 'ACTIVE') {
       msg.reply('Sync already in progress.');
@@ -44,13 +46,14 @@ client.on('message', async (msg) => {
 
     let logData;
 
-    if (content === 'pi sync retry') {
+    msg.reply('Starting sync...');
+
+    if (content === `${trigger} sync retry`) {
       logData = await syncDB(false, await getFailedURLs());
     } else {
       logData = await syncDB();
     }
 
-    msg.reply('Starting sync...');
     try {
       msg.reply(
         `Synced ${logData.syncedUrlsCount} features in ${logData.seconds} seconds.`

@@ -29,6 +29,7 @@ interface Props {
 }
 
 import NextImage from 'next/image';
+import Subscribe from '../components/subscribe';
 
 // index.tsx
 export const getStaticProps: GetStaticProps = async (): Promise<{
@@ -106,6 +107,8 @@ export default function Search({ recs }: Props) {
             height="80px"
           />
         </a>
+        {/* <br /> */}
+        {/* <Subscribe /> */}
       </Box>
       <Box display="flex" justifyContent="center" marginTop="50px">
         <Box width="500px">
