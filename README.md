@@ -1,58 +1,8 @@
-# What is this
+# What is this??
 
-This is a web scraper for the website www.perfectlyimperfect.fyi that scrapes the recommendation data and persists to a database.
+Substack has no API, so to build a database of our guests, features, and recommendations I had to build web scraper to parse the data we needed.
 
-Not much is done with this data yet besides a [simple landing page](https://perfectly-imperfect.onrender.com/api/recs), an [endpoint containing the recommendations](https://perfectly-imperfect.onrender.com/api/recs), and a discord bot that provides you with a random recommendation.
+Right now the data is used to power [search.perfectlyimperfect.fyi](https://search.perfectlyimperfect.fyi/), a powerful search for our thousands of recommendations.
+And our [Discord bot](https://discord.gg/QMuPsjJgDK), which will respond with a random recommendation matching the search criteria.
 
-# Helpful scripts
-
-## To set up
-
-```bash
-yarn install && yarn run init
-
-```
-
-## To fill the db
-
-```bash
-yarn run start
-```
-
-## To reset db
-
-```bash
-yarn run reset-db && yarn run start
-```
-
-## To view data in sql view
-
-```bash
-yarn prisma studio
-```
-
-## Run next.js web server
-
-```bash
-yarn run dev
-```
-
-# More
-
-## Next routes
-
-```
-/pages
-```
-
-## Scraper code
-
-```
-/scraper
-```
-
-## Prisma (DB) schema
-
-```
-/prisma
-```
+There's a lot more that can be done with this data and we'll keep finding fun ways to use it :)
