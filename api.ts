@@ -19,7 +19,9 @@ type ResultRec = Rec & {
   feature: Feature;
 };
 
-const trigger = process.env.NODE_ENV !== 'production' ? 'pitest' : 'pi';
+const trigger = dev ? 'pitest' : 'pi';
+
+console.log(process.env.NODE_ENV);
 
 const client = new Discord.Client();
 let recs: ResultRec[] = [];
@@ -76,7 +78,12 @@ client.on('message', async (msg) => {
     return;
   }
 
-  if (content === 'pi rec') {
+  if (content.startsWith(`${trigger} rec`)) {
+    const [query] = content
+      .split(`${trigger} rec`)
+      .map((n) => n.trim())
+      .filter(Boolean);
+
     if (recs.length === 0) {
       recs = await prisma.rec.findMany({
         include: {
@@ -86,11 +93,23 @@ client.on('message', async (msg) => {
       });
     }
 
-    const rec = _.sample(recs);
+    const filteredRecs =
+      query && query.length > 0
+        ? recs.filter((rec) => {
+            return [rec.title, rec.content, rec.guest.name]
+              .join('')
+              .toLowerCase()
+              .includes(query.toLowerCase());
+          })
+        : recs;
+
+    const rec = _.sample(filteredRecs);
 
     console.log('responding with rec!', rec?.id);
 
-    if (rec != null) {
+    if (rec == null) {
+      msg.reply('No recommendations found.');
+    } else {
       const embed = new Discord.MessageEmbed()
         .setTitle([rec?.emoji, rec?.title].filter(Boolean).join(' '))
         // .setAuthor("Perfectly Imperfect", "https://cdn.substack.com/image/fetch/w_1360,c_limit,f_auto,q_auto:best,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fecbe78f0-ea9f-4221-8db1-6d10269a5c80_1000x1019.png")
