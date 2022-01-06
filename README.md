@@ -1,6 +1,6 @@
 # What is this??
 
-This is a repository for all projects relating to (Perfectly Imperfect Newsletter)[https://www.perfectlyimperfect.fyi/].
+This is a repository for all projects relating to [Perfectly Imperfect Newsletter](https://www.perfectlyimperfect.fyi/).
 
 Substack has no API, so to build a database of our guests, features, and recommendations I had to build web scraper to parse the data we needed.
 
